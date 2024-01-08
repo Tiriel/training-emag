@@ -48,9 +48,9 @@ class BookController extends AbstractController
         $form = $this->createForm(BookType::class, $book);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (($user = $this->getUser()) instanceof User) {
-                $book->setCreatedBy($user);
-            }
+            //if (($user = $this->getUser()) instanceof User) {
+            //    $book->setCreatedBy($user);
+            //}
             $manager->persist($book);
             $manager->flush();
 
