@@ -17,27 +17,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class BookController extends AbstractController
 {
     #[Route('', name: 'app_book_index')]
-    public function index(BookRepository $repository): JsonResponse
+    public function index(BookRepository $repository): Response
     {
-        $titles = array_map(
-            fn(Book $book) => $book->getTitle(),
-            $repository->findBy([], ['id' => 'DESC'], 10)
-        );
-
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/BookController.php',
-            'books' => $titles,
+        return $this->render('book/index.html.twig', [
+            'books' => $repository->findAll(),
         ]);
     }
 
     #[Route('/{!id<\d+>?1}', name: 'app_book_show', methods: ['GET'])]
     // #[Route('/{id<\d+>?1}', name: 'app_book_show', requirements: ['id' => '\d+'], defaults: ['id' => 1])]
-    public function show(int $id = 1): JsonResponse
+    public function show(Book $book): Response
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller! id : '.$id,
-            'path' => 'src/Controller/BookController.php',
+        return $this->render('book/show.html.twig', [
+            'book' => $book,
         ]);
     }
 
