@@ -8,10 +8,18 @@
         {% endblock %}
 
         {% block javascripts %}
-{% block importmap %}{{ importmap('app') }}{% endblock %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}
     </head>
     <body>
+    <header>
+        {% block header '' %}
+        {% block navbar %}
+            {{ include('includes/_navbar.html.twig', with_context = false) }}
+        {% endblock %}
+    </header>
+    <main class="container mt-5">
         {% block body %}{% endblock %}
+    </main>
     </body>
 </html>
