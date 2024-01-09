@@ -2,9 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Genre;
 use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<Movie>
@@ -19,6 +21,20 @@ class MovieRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Movie::class);
+    }
+
+    public function omdbSearchTitle(string $title): ?Movie
+    {
+        $qb = $this->createQueryBuilder('m');
+
+        return $qb->select('m')
+            ->addSelect('g')
+            ->join(Genre::class, 'g')
+            ->where($qb->expr()->like('m.title', ':title'))
+            ->setParameter('title', "%$title%")
+            ->orderBy('m.releasedAt', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
 //    /**
