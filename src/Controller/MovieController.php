@@ -6,6 +6,8 @@ use App\Consumer\OmdbApiConsumer;
 use App\Entity\Movie;
 use App\Enum\SearchTypeEnum;
 use App\Repository\MovieRepository;
+use App\Transformer\OmdbToGenreTransformer;
+use App\Transformer\OmdbToMovieTransformer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -30,12 +32,16 @@ class MovieController extends AbstractController
     }
 
     #[Route('/omdb/{title}', name: 'app_movie_omdb', methods: ['GET'])]
-    public function omdb(string $title, OmdbApiConsumer $consumer): Response
+    public function omdb(string $title, OmdbApiConsumer $consumer, OmdbToMovieTransformer $movieTransformer, OmdbToGenreTransformer $genreTransformer): Response
     {
-        dd($consumer->fetch(SearchTypeEnum::Title, $title));
+        $data = $consumer->fetch(SearchTypeEnum::Title, $title);
+        $movie = $movieTransformer->transform($data);
+        foreach (explode(', ', $data['Genre']) as $name) {
+            $movie->addGenre($genreTransformer->transform($name));
+        }
 
         return $this->render('movie/show.html.twig', [
-            'movie' => []
+            'movie' => $movie,
         ]);
     }
 }
