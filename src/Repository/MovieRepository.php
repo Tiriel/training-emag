@@ -28,11 +28,10 @@ class MovieRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('m');
 
         return $qb->select('m')
-            ->addSelect('g')
-            ->join(Genre::class, 'g')
             ->where($qb->expr()->like('m.title', ':title'))
             ->setParameter('title', "%$title%")
             ->orderBy('m.releasedAt', 'ASC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
     }
