@@ -7,11 +7,14 @@ use App\Entity\User;
 use App\Form\BookType;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/book')]
 class BookController extends AbstractController
@@ -19,6 +22,9 @@ class BookController extends AbstractController
     #[Route('', name: 'app_book_index')]
     public function index(BookRepository $repository): Response
     {
+        if (!$this->isGranted('ROLE_USER')) {
+            throw new AccessDeniedException();
+        }
         return $this->render('book/index.html.twig', [
             'books' => $repository->findAll(),
         ]);
@@ -33,6 +39,7 @@ class BookController extends AbstractController
         ]);
     }
 
+    #[IsGranted('IS_AUTHENTICATED')]
     #[Route('/new', name: 'app_book_new', methods: ['GET'])]
     public function new(Request $request, EntityManagerInterface $manager): Response
     {
@@ -54,14 +61,14 @@ class BookController extends AbstractController
         ]);
     }
 
+    //#[IsGranted('book.title', 'book')]
     #[Route('/{title}', name: 'app_book_title', methods: ['GET'])]
-    public function title(BookRepository $repository, ?string $title = null): Response
+    public function title(BookRepository $repository, #[MapEntity] ?Book $book): Response
     {
-        $this->denyAccessUnlessGranted('book.title', $title);
-        $book = $repository->findOneBy(['title' => $title]);
+        $this->denyAccessUnlessGranted('book.title', $book);
 
-        return $this->redirectToRoute('app_book_show', [
-            'id' => $book->getId(),
+        return $this->render('book/show.html.twig', [
+            'book' => $book,
         ]);
     }
 }

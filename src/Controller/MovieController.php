@@ -9,6 +9,7 @@ use App\Repository\MovieRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/movie')]
 class MovieController extends AbstractController
@@ -21,6 +22,7 @@ class MovieController extends AbstractController
         ]);
     }
 
+    #[IsGranted('movie.rated', 'movie')]
     #[Route('/{id<\d+>}', name: 'app_movie_show', methods: ['GET'])]
     public function show(?Movie $movie): Response
     {
@@ -32,8 +34,10 @@ class MovieController extends AbstractController
     #[Route('/omdb/{title}', name: 'app_movie_omdb', methods: ['GET'])]
     public function omdb(string $title, MovieProvider $provider): Response
     {
+        $movie = $provider->getMovie(SearchTypeEnum::Title, $title) ;
+
         return $this->render('movie/show.html.twig', [
-            'movie' => $provider->getMovie(SearchTypeEnum::Title, $title),
+            'movie' => $movie,
         ]);
     }
 }
