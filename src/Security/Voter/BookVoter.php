@@ -4,9 +4,11 @@ namespace App\Security\Voter;
 
 use App\Entity\Book;
 use App\Entity\User;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+#[AutoconfigureTag(name: 'security.voter', attributes: ['priority' => 300])]
 class BookVoter extends Voter
 {
     public const TITLE = 'book.title';

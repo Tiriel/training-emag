@@ -6,6 +6,7 @@ use App\Consumer\OmdbApiConsumer;
 use App\Entity\Movie;
 use App\Entity\User;
 use App\Enum\SearchTypeEnum;
+use App\Security\Voter\MovieVoter;
 use App\Transformer\OmdbToMovieTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -53,7 +54,7 @@ class MovieProvider
 
     private function checkRated($movie): void
     {
-        if (!$this->security->isGranted('movie.rated', $movie)) {
+        if (!$this->security->isGranted(MovieVoter::RATED, $movie)) {
             throw new AccessDeniedException();
         }
     }
